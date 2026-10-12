@@ -147,7 +147,7 @@
   rules:
   - subject-predicate
   criteria:
-  - Identify the problematic passage and cite subject-predicate.
+  - Identify the problematic passage and cite the relevant principle; an equivalent citation is sufficient.
   - Explain the false intention and suggest an action-based correction.
   - Do not present an unrequested full rewrite as the sole output.
 - id: paragraph-tradeoff

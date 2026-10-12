@@ -12,3 +12,7 @@ This repository maintains Tyson Gern's writing instructions, examples, and evalu
 - For substantive guide revisions, compare outputs using `evaluation/rubric.md` when model access is available and authorized. Report when behavioral evaluation has not been run. Do not claim an improvement from structural checks alone.
 - The skill source in `skill/SKILL.md` is a packaging template. Its `references/` links resolve in the generated `dist/tyson-writing/` package.
 - Publish only the requested destinations. `scripts/publish_gist.py` updates the existing public Gist when explicitly invoked for that purpose.
+
+- For Go harness changes, run `go test -race ./...` and `go vet ./...`. Tests must not make live model calls.
+- Keep credentials in the process environment. Do not commit `evaluation/results/` or publish raw evaluation material without authorization.
+- For live comparisons, run the pilot first and inspect prompts and results before scaling up. Preserve failed responses; do not resample merely because the writing is poor.

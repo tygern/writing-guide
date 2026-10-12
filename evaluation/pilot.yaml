@@ -1,0 +1,26 @@
+# Paths are relative to this configuration file. Model names are explicit and editable.
+cases: cases.yaml
+baseline: ../examples/original-guide.md
+candidate: ../guide.md
+rubric: rubric.md
+samples: ../examples/annotated-passages.md
+split: development
+repetitions: 1
+concurrency: 2
+timeout_seconds: 180
+retries: 2
+seed: 20261012
+writer:
+  name: gpt-6-astra
+  effort: low
+  max_output_tokens: 4096
+judge:
+  name: gpt-6-astra
+  effort: medium
+  max_output_tokens: 8192
+case_ids:
+  - index-maintenance
+  - api-dependency
+  - unknown-actor
+  - review-with-rule
+  - paragraph-tradeoff

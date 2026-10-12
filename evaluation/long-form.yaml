@@ -1,0 +1,73 @@
+# Supplemental development cases for prose beyond individual sentences.
+- id: draft-retrieval-recommendation
+  split: development
+  task: draft
+  input: >-
+    Write 120–180 words for engineers choosing retrieval for a documentation assistant.
+    Use these supplied facts: Full-text retrieval matches shared terms. Vector retrieval can
+    retrieve paraphrases. Hybrid retrieval uses both methods and maintains two indexes.
+    The team has labeled 80 representative queries but has not yet compared methods.
+    Recommend comparing the three approaches on that set before deciding whether to maintain
+    both indexes. Explain the cost tradeoff. Do not introduce performance measurements.
+  rules: [preserve-meaning, measured-language, argument-structure, subject-predicate]
+  criteria:
+    - Explain the two retrieval methods and the maintenance cost of a second index.
+    - Preserve the 80-query set and the absence of a completed comparison.
+    - Make the requested recommendation without claiming that one method has won.
+    - Develop connected prose without a generic opening or a repetitive conclusion.
+    - Stay within 120–180 words without filling space with invented context.
+- id: edit-evaluation-paragraphs
+  split: development
+  task: edit
+  input: |-
+    Edit these two paragraphs for clarity and voice. Preserve the measurements, scope,
+    and recommendation. Return only the revised prose.
+
+    In today's rapidly evolving landscape, every team needs seamless search. We tested
+    full-text and vector search on 40 support queries from one product. Full-text search
+    returned relevant results for 29 queries, while vector search did so for 31. These
+    counts do not measure the relevance of every returned passage. The evaluation wants
+    us to adopt vector search immediately, but the sample is limited to one product.
+
+    The next step is not to chase a silver bullet. It is to expand the evaluation to
+    questions from another product before choosing a method. Neither method has been
+    tested on that product. This will unlock robust insights and drive confidence in
+    the ultimate search strategy. I recommend running that comparison before deployment.
+  rules: [preserve-meaning, concrete-claims, measured-language, direct-prose, subject-predicate]
+  criteria:
+    - Preserve the 40 queries, the 29 and 31 counts, and the single-product scope.
+    - Preserve the limitation about passage relevance and the untested second product.
+    - Remove the evaluation's supposed desire without endorsing immediate adoption.
+    - Retain the supplied recommendation to compare on the second product before deployment.
+    - Remove promotional language, generic framing, and rhetorical negative parallelism.
+    - Return only revised prose and preserve the supported first-person recommendation.
+- id: review-maintenance-article
+  split: development
+  task: review
+  input: |-
+    Review this short article against the writing guide. Identify supported findings,
+    cite the relevant principles, and suggest corrections. Do not rewrite the whole article.
+
+    After deployment, search indexes need attention. Our maintainers update both indexes
+    when documents change. The full-text index stores terms, and the vector index stores
+    embeddings. Each indexing job records the document version and embedding model.
+
+    A model change makes the stored vectors unhappy. Maintainers should recompute them
+    before using the new model to embed queries. The full-text index does not depend on
+    the embedding model, so that change alone does not require rebuilding it.
+
+    Failed API calls can interrupt indexing. Our workflow retries rate-limited calls with
+    backoff, then resumes from the last completed chunk. These retries increase request
+    volume. We have not measured how often they occur in production.
+
+    It's not about maintaining indexes. It's about ensuring unwavering quality. The
+    evaluation needs rerunning after a document or model change. Maintainers compare
+    the new results with the previous results before deciding whether to deploy.
+  rules: [preserve-meaning, subject-predicate, measured-language, direct-prose]
+  criteria:
+    - Flag attention, unhappy, and needs rerunning where they obscure the actual maintenance actions.
+    - Suggest direct actions without inventing an owner beyond the supplied maintainers.
+    - Flag the rhetorical contrast and unsupported unwavering quality claim.
+    - Do not flag the real dependency, retry operation, or causal request-volume statement as anthropomorphism.
+    - Preserve the absence of production retry measurements and the full-text rebuilding exception.
+    - Provide review findings with equivalent principle citations rather than a full replacement article.

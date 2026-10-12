@@ -1,0 +1,284 @@
+# Criteria and reference answers are for reviewers, not writing-model prompts.
+- id: index-maintenance
+  split: development
+  task: edit
+  input: 'Edit: After deployment, the indexes need updating when documents change.'
+  rules:
+  - subject-predicate
+  - preserve-meaning
+  criteria:
+  - Express updating as an instruction or an action by maintainers.
+  - Preserve the trigger about document changes.
+  - Do not add a schedule or additional maintenance duties.
+  acceptable_example: After deployment, update the indexes when documents change.
+- id: api-dependency
+  split: development
+  task: edit
+  input: 'Edit only if warranted: The service requires an API key.'
+  rules:
+  - subject-predicate
+  criteria:
+  - Accept the dependency as literal.
+  - Leave the sentence unchanged.
+- id: api-promise
+  split: development
+  task: review
+  input: 'Review: The function returns a promise.'
+  rules:
+  - subject-predicate
+  criteria:
+  - Do not flag promise as anthropomorphism.
+  - Report no violation if no other issue is identified.
+- id: metric-definition
+  split: development
+  task: edit
+  input: 'Edit: Precision divides the number of relevant results returned by the total number of results
+    returned.'
+  rules:
+  - subject-predicate
+  - preserve-meaning
+  criteria:
+  - Define precision as a ratio rather than an actor performing division.
+  - Preserve the numerator and denominator.
+- id: ranking-condition
+  split: development
+  task: edit
+  input: 'The claim concerns ranking, not equality of numeric scores. Edit: For these unit vectors, normalization
+    makes the three measures agree.'
+  rules:
+  - subject-predicate
+  - preserve-meaning
+  criteria:
+  - State the condition and that the rankings are the same.
+  - Do not assert that the scores are numerically equal.
+- id: supported-cause
+  split: development
+  task: edit
+  input: 'Edit only if warranted: Retries increase request volume.'
+  rules:
+  - subject-predicate
+  - preserve-meaning
+  criteria:
+  - Preserve the supported causal statement.
+  - Do not replace it merely because it can be rewritten as a when-clause.
+- id: meaningful-qualification
+  split: development
+  task: edit
+  input: 'Edit only if warranted: There is little evidence that this change improves recall.'
+  rules:
+  - measured-language
+  - preserve-meaning
+  criteria:
+  - Keep the qualification about the amount of evidence.
+  - Do not strengthen the claim to no evidence or no improvement.
+- id: unknown-actor
+  split: development
+  task: edit
+  input: 'The actor is unknown. Edit: The records were deleted at noon.'
+  rules:
+  - preserve-meaning
+  - direct-prose
+  criteria:
+  - Do not invent an actor.
+  - Preserve the deletion and time.
+  - Accept passive voice.
+- id: remove-empty-opening
+  split: development
+  task: edit
+  input: 'Edit without adding facts: Everyone knows that search is important. Compare retrieval methods
+    on representative queries before choosing one.'
+  rules:
+  - concrete-claims
+  - direct-prose
+  criteria:
+  - Remove the generic opening.
+  - Preserve the recommendation and ordering.
+  - Do not add methods, metrics, or benefits.
+- id: unsupported-personal-use
+  split: development
+  task: draft
+  input: Write one sentence recommending that maintainers consider tool X for this task. There is no information
+    about whether Tyson uses it.
+  rules:
+  - personal-voice
+  - preserve-meaning
+  criteria:
+  - Offer the requested measured recommendation.
+  - Do not claim personal use, tests, or experience.
+- id: short-sequence
+  split: development
+  task: edit
+  input: 'Edit: You run the migration and after that you restart the service.'
+  rules:
+  - personal-voice
+  - direct-prose
+  criteria:
+  - Use a direct instruction or a supported named subject.
+  - Preserve the sequence of migration before restart.
+  acceptable_example: Run the migration, then restart the service.
+- id: rhetorical-contrast
+  split: development
+  task: edit
+  input: 'Edit into a direct recommendation: It is not about chasing embeddings. It is about measuring
+    retrieval quality.'
+  rules:
+  - direct-prose
+  - concrete-claims
+  criteria:
+  - State the recommendation to measure retrieval quality.
+  - Remove the rhetorical negative parallelism.
+  - Do not introduce an argument against embeddings.
+- id: prose-only-edit
+  split: development
+  task: edit
+  input: 'Return only revised prose: This talk will explore how maintainers can rerun evaluation after
+    a model change.'
+  rules:
+  - concrete-claims
+  criteria:
+  - Provide revised prose without a review or compliance report.
+  - Remove unnecessary self-reference.
+  - Preserve maintainers, evaluation, and the model-change condition.
+- id: review-with-rule
+  split: development
+  task: review
+  input: 'Review this sentence; do not replace the entire passage: The index wants fresh documents. The
+    intended recommendation is to update it when documents change.'
+  rules:
+  - subject-predicate
+  criteria:
+  - Identify the problematic passage and cite subject-predicate.
+  - Explain the false intention and suggest an action-based correction.
+  - Do not present an unrequested full rewrite as the sole output.
+- id: paragraph-tradeoff
+  split: development
+  task: draft
+  input: 'Write a short paragraph from these facts: Hybrid search uses full-text and vector retrieval.
+    It uses two indexes. The team has not measured whether it improves results. Recommend evaluating it
+    before deciding whether to maintain both indexes.'
+  rules:
+  - preserve-meaning
+  - argument-structure
+  - measured-language
+  criteria:
+  - Explain the approach and maintenance cost.
+  - Recommend evaluation before deciding.
+  - Do not assert a measured benefit or invent experience.
+- id: cache-intention
+  split: held-out
+  task: edit
+  input: 'Edit: The cache hopes to avoid another database call by serving a stored response.'
+  rules:
+  - subject-predicate
+  - preserve-meaning
+  criteria:
+  - Describe serving the stored response without intent.
+  - Preserve the avoided database call.
+  - Do not add a cache-hit rate or performance guarantee.
+- id: configuration-obligation
+  split: held-out
+  task: edit
+  input: 'Edit: After rotating credentials, the configuration wants refreshing before the next connection
+    attempt.'
+  rules:
+  - subject-predicate
+  - preserve-meaning
+  criteria:
+  - Express refreshing as an action.
+  - Preserve both timing constraints.
+  - Do not invent a responsible team or schedule.
+- id: real-interface-constraint
+  split: held-out
+  task: edit
+  input: 'Edit only if warranted: This endpoint accepts only UTF-8 text.'
+  rules:
+  - subject-predicate
+  - preserve-meaning
+  criteria:
+  - Leave the operational constraint intact.
+  - Do not invent intent, a person, or another encoding.
+- id: nested-perception
+  split: held-out
+  task: edit
+  input: 'The intended claim is that the parser rejects malformed input when validation is enabled. Edit:
+    Enabling validation lets the parser notice malformed input.'
+  rules:
+  - subject-predicate
+  - preserve-meaning
+  criteria:
+  - Replace perception with rejection.
+  - Keep validation as the relevant condition.
+  - Do not claim that validation catches all errors.
+- id: negation-with-content
+  split: held-out
+  task: edit
+  input: 'Edit only if warranted: This endpoint does not support streaming responses.'
+  rules:
+  - direct-prose
+  - preserve-meaning
+  criteria:
+  - Keep the substantive limitation.
+  - Do not remove negation or claim a different supported behavior.
+- id: bounded-comparison
+  split: held-out
+  task: edit
+  input: 'Tighten without changing scope: In our ten tests, method A was faster than method B on eight
+    queries, but the sample is too small for a general claim.'
+  rules:
+  - preserve-meaning
+  - measured-language
+  criteria:
+  - Retain the sample size, result count, and limit on generalization.
+  - Do not claim A is universally faster or statistically significant.
+- id: quoted-promotional-word
+  split: held-out
+  task: edit
+  input: 'Preserve the quotation exactly. Edit only surrounding prose: The release note says, "Unlock
+    seamless search." This claim is really very vague.'
+  rules:
+  - preserve-meaning
+  - measured-language
+  - direct-prose
+  criteria:
+  - Preserve the complete quotation unchanged.
+  - Remove empty intensifiers in the surrounding sentence.
+  - Do not treat the quoted words as endorsed recommendations.
+- id: narrow-edit
+  split: held-out
+  task: edit
+  input: 'Fix only the agency issue: The scoring function rewards rare terms with higher weights. That
+    weighting can affect document order.'
+  rules:
+  - subject-predicate
+  - preserve-meaning
+  criteria:
+  - Describe assignment of higher weights without reward.
+  - Preserve the possibility in the second sentence.
+  - Do not add a formula, examples, or claims about quality.
+- id: draft-from-limited-evidence
+  split: held-out
+  task: draft
+  input: 'Write two sentences for maintainers. Facts: a new document parser reduced indexing time from
+    12 minutes to 9 minutes on one test collection. No other collection has been tested. Recommend further
+    evaluation before deployment.'
+  rules:
+  - preserve-meaning
+  - measured-language
+  - argument-structure
+  criteria:
+  - Preserve the times and the single-collection scope.
+  - Recommend further evaluation before deployment.
+  - Do not claim broader speedups, production readiness, or first-person experience.
+- id: review-acceptable-paragraph
+  split: held-out
+  task: review
+  input: 'Review: After changing the embedding model, recompute the stored vectors. Then rerun the evaluation
+    on the same labeled queries before deciding whether to deploy.'
+  rules:
+  - subject-predicate
+  - argument-structure
+  - preserve-meaning
+  criteria:
+  - Do not invent a violation to fill the review.
+  - Accept direct instructions and the stated sequence.
+  - If offering an optional improvement, distinguish it from a rule violation and preserve meaning.

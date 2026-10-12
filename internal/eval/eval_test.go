@@ -310,3 +310,51 @@ judge: {name: test, max_output_tokens: 100}
 		t.Fatal("changed guide accepted into frozen run")
 	}
 }
+
+func TestEvidenceAllowsBoldButNotChangedWords(t *testing.T) {
+	if !evidenceMatches("**Principle:** preserve the claim.", "Principle: preserve the claim.") {
+		t.Fatal("format-only quotation rejected")
+	}
+	if evidenceMatches("**Principle:** preserve the claim.", "Principle: rewrite the claim.") {
+		t.Fatal("changed words accepted")
+	}
+	if evidenceMatches("Preserve all facts.", "Preserve facts.") {
+		t.Fatal("omitted word accepted")
+	}
+}
+func TestRecheckDoesNotDoubleCountUsage(t *testing.T) {
+	m, dir := fixture(t)
+	r := Record{ID: "case-one/0/order-0", CaseID: "case-one", AVariant: "baseline", Error: "judge evidence is not an exact output quotation", Request: Request{Input: judgeInput(m.Cases[0], "**A** valid response.", "**A** valid response.")}, Response: Response{Status: "completed", Usage: Usage{Input: 10, Output: 5}}, Attempts: []Attempt{{Error: "validation error"}}}
+	a := Assessment{Meaning: true, Restraint: true, Completion: true, Criteria: []Criterion{{Index: 0, Pass: true, Reason: "Meets criterion.", Evidence: "A valid response."}}}
+	j := Judgment{A: a, B: a, Clarity: Preference{"tie", "same"}, Voice: Preference{"tie", "same"}}
+	b, _ := json.Marshal(j)
+	r.Response.Text = string(b)
+	r.Hash = digest(r.Request)
+	f, err := os.Create(filepath.Join(dir, "judgments.jsonl"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = json.NewEncoder(f).Encode(r); err != nil {
+		t.Fatal(err)
+	}
+	f.Close()
+	if err = Recheck(dir, io.Discard); err != nil {
+		t.Fatal(err)
+	}
+	rows, err := readRecords(filepath.Join(dir, "judgments.jsonl"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	revised := rows[r.ID]
+	if revised.Error != "" || !revised.Revalidated || revised.ValidationNote == "" {
+		t.Fatal("missing recheck metadata")
+	}
+	all, err := ReadAllRecords(filepath.Join(dir, "judgments.jsonl"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := makeSummary(m, nil, rows, all)
+	if s.Usage.Input != 10 || s.Usage.Output != 5 || s.Attempts != 1 {
+		t.Fatalf("double-counted recheck: %+v", s)
+	}
+}

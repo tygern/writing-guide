@@ -189,6 +189,7 @@ func judgeJobs(m Manifest, gen map[string]Record) ([]job, int) {
 }
 func execute(ctx context.Context, p Provider, j job, c Config, grading bool) Record {
 	r := j.Record
+	r.ValidationVersion = ValidationVersion
 	for attempt := 0; attempt <= c.Retries; attempt++ {
 		start := time.Now().UTC()
 		requestCtx, cancel := context.WithTimeout(ctx, time.Duration(c.TimeoutSeconds)*time.Second)
@@ -198,6 +199,7 @@ func execute(ctx context.Context, p Provider, j job, c Config, grading bool) Rec
 		a := Attempt{Started: start, Milliseconds: time.Since(start).Milliseconds()}
 		if err == nil && grading {
 			r.Judgment, err = ParseJudgment(response.Text, j.Case, j.A, j.B)
+			r.ValidationNote = evidenceNote(r.Judgment, j.A, j.B)
 		}
 		if err != nil {
 			a.Error = safeError(err)
@@ -366,4 +368,81 @@ func SortedRecords(rows map[string]Record) []Record {
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
 	return out
+}
+
+// Recheck validates saved complete judge responses without making model calls.
+func Recheck(dir string, out io.Writer) error {
+	m, err := LoadManifest(dir)
+	if err != nil {
+		return err
+	}
+	lock := filepath.Join(dir, ".lock")
+	if err = os.Mkdir(lock, 0700); err != nil {
+		return err
+	}
+	defer os.Remove(lock)
+	path := filepath.Join(dir, "judgments.jsonl")
+	rows, err := readRecords(path)
+	if err != nil {
+		return err
+	}
+	cases := map[string]Case{}
+	for _, c := range m.Cases {
+		cases[c.ID] = c
+	}
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	fixed := 0
+	failed := 0
+	for _, r := range SortedRecords(rows) {
+		if r.Error == "" {
+			continue
+		}
+		if r.Response.Status != "completed" {
+			failed++
+			continue
+		}
+		c, ok := cases[r.CaseID]
+		if !ok {
+			return fmt.Errorf("unknown case in saved judgment")
+		}
+		var input struct {
+			A string `json:"A"`
+			B string `json:"B"`
+		}
+		if err = json.Unmarshal([]byte(r.Request.Input), &input); err != nil {
+			return err
+		}
+		j, e := ParseJudgment(r.Response.Text, c, input.A, input.B)
+		if e != nil {
+			failed++
+			continue
+		}
+		r.Judgment = j
+		r.Error = ""
+		r.ValidationVersion = ValidationVersion
+		r.ValidationNote = evidenceNote(j, input.A, input.B)
+		r.Revalidated = true
+		r.Attempts = nil
+		b, e := json.Marshal(r)
+		if e != nil {
+			return e
+		}
+		if _, err = f.Write(append(b, '\n')); err != nil {
+			return err
+		}
+		if err = f.Sync(); err != nil {
+			return err
+		}
+		fmt.Fprintf(out, "%s: revalidated saved judgment (%s)\n", r.ID, r.ValidationVersion)
+		fixed++
+	}
+	fmt.Fprintf(out, "Revalidated %d saved judgments; %d errors remain. No model calls made.\n", fixed, failed)
+	if failed > 0 {
+		return fmt.Errorf("%d errors remain", failed)
+	}
+	return nil
 }

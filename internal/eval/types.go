@@ -89,18 +89,21 @@ type Attempt struct {
 	Error        string    `json:"error,omitempty"`
 }
 type Record struct {
-	ID         string    `json:"id"`
-	CaseID     string    `json:"case_id"`
-	Repetition int       `json:"repetition"`
-	Variant    string    `json:"variant,omitempty"`
-	Order      int       `json:"order,omitempty"`
-	AVariant   string    `json:"a_variant,omitempty"`
-	Hash       string    `json:"request_hash"`
-	Request    Request   `json:"request"`
-	Response   Response  `json:"response"`
-	Attempts   []Attempt `json:"attempts"`
-	Error      string    `json:"error,omitempty"`
-	Judgment   *Judgment `json:"judgment,omitempty"`
+	ValidationVersion string    `json:"validation_version,omitempty"`
+	ValidationNote    string    `json:"validation_note,omitempty"`
+	Revalidated       bool      `json:"revalidated,omitempty"`
+	ID                string    `json:"id"`
+	CaseID            string    `json:"case_id"`
+	Repetition        int       `json:"repetition"`
+	Variant           string    `json:"variant,omitempty"`
+	Order             int       `json:"order,omitempty"`
+	AVariant          string    `json:"a_variant,omitempty"`
+	Hash              string    `json:"request_hash"`
+	Request           Request   `json:"request"`
+	Response          Response  `json:"response"`
+	Attempts          []Attempt `json:"attempts"`
+	Error             string    `json:"error,omitempty"`
+	Judgment          *Judgment `json:"judgment,omitempty"`
 }
 
 func Hash(data []byte) string { h := sha256.Sum256(data); return hex.EncodeToString(h[:]) }

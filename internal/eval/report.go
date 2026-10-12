@@ -97,6 +97,9 @@ func makeSummary(m Manifest, gen, judges map[string]Record, all []Record) Summar
 	s.MissingGenerations = s.ExpectedGenerations - len(gen)
 	s.MissingJudgments = s.ExpectedJudgments - len(judges)
 	for _, r := range all {
+		if r.Revalidated {
+			continue
+		}
 		s.Usage.Input += r.Response.Usage.Input
 		s.Usage.CachedInput += r.Response.Usage.CachedInput
 		s.Usage.Output += r.Response.Usage.Output
@@ -247,6 +250,9 @@ func Report(dir string) error {
 					continue
 				}
 				fmt.Fprintf(&b, "Judge order %d (A = %s):\n\n", order, r.AVariant)
+				if r.ValidationNote != "" {
+					fmt.Fprintf(&b, "Validation: %s\n\n", r.ValidationNote)
+				}
 				if r.Judgment == nil {
 					fmt.Fprintf(&b, "Error: %s\n\n", r.Error)
 					continue

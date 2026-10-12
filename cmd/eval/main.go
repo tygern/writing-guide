@@ -19,7 +19,7 @@ func main() {
 }
 func run() error {
 	if len(os.Args) < 2 {
-		return fmt.Errorf("usage: eval plan|generate|judge|report [options]")
+		return fmt.Errorf("usage: eval plan|generate|judge|recheck|report [options]")
 	}
 	stage := os.Args[1]
 	flags := flag.NewFlagSet(stage, flag.ContinueOnError)
@@ -51,12 +51,15 @@ func run() error {
 		if stage == "plan" {
 			return nil
 		}
-	case "judge", "report":
+	case "judge", "report", "recheck":
 		if *config != "" {
 			return fmt.Errorf("%s uses the frozen run manifest; omit --config", stage)
 		}
 	default:
 		return fmt.Errorf("unknown command: %s", stage)
+	}
+	if stage == "recheck" {
+		return eval.Recheck(*dir, os.Stdout)
 	}
 	if stage == "report" {
 		return eval.Report(*dir)

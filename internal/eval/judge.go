@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -106,7 +107,7 @@ func ParseJudgment(text string, c Case, a, b string) (*Judgment, error) {
 				return nil, fmt.Errorf("invalid criterion assessment")
 			}
 			seen[v.Index] = true
-			if v.Evidence != "" && !strings.Contains(output, v.Evidence) {
+			if v.Evidence != "" && !evidenceMatches(output, v.Evidence) {
 				return nil, fmt.Errorf("judge evidence is not an exact output quotation")
 			}
 		}
@@ -135,4 +136,32 @@ func judgeInput(c Case, a, b string) string {
 	}{c.Task, c.Input, c.Criteria, a, b}
 	data, _ := json.Marshal(v)
 	return string(data)
+}
+
+const ValidationVersion = "v2-markdown-bold"
+
+var boldMarkup = regexp.MustCompile(`\*\*([^*\n]+)\*\*`)
+
+func evidenceMatches(output, quotation string) bool {
+	if strings.Contains(output, quotation) {
+		return true
+	}
+	return strings.Contains(boldMarkup.ReplaceAllString(output, "$1"), boldMarkup.ReplaceAllString(quotation, "$1"))
+}
+func evidenceNote(j *Judgment, a, b string) string {
+	if j == nil {
+		return ""
+	}
+	for n, assessment := range []Assessment{j.A, j.B} {
+		output := a
+		if n == 1 {
+			output = b
+		}
+		for _, c := range assessment.Criteria {
+			if c.Evidence != "" && !strings.Contains(output, c.Evidence) {
+				return "Evidence matched after removing paired Markdown bold markers; wording is unchanged."
+			}
+		}
+	}
+	return ""
 }

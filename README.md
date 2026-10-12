@@ -79,7 +79,7 @@ go run ./cmd/eval judge --run evaluation/results/development
 go run ./cmd/eval report --run evaluation/results/development
 ```
 
-This requests 90 writing responses and 90 judgments across 15 cases, two guides, and three repetitions. `evaluation/long-form-run.yaml` adds a separate comparison of three longer development tasks (18 writing responses and 18 judgments). For a held-out run, copy `run.yaml`, set `split: held-out`, and use a new run directory after fixing the evaluation procedure.
+This requests 90 writing responses and 90 judgments across 15 cases, two guides, and three repetitions. `evaluation/long-form-run.yaml` adds a separate comparison of three longer development tasks (18 writing responses and 18 judgments). For the 10 held-out cases, use `evaluation/held-out-run.yaml` and a new run directory after fixing the evaluation procedure (60 writing responses and 60 judgments).
 
 Run directories are ignored by Git. Each manifest snapshots the guide text, selected cases, grading rubric, published voice samples, model settings, source hashes, and repository revision. The baseline archive's historical wrapper is removed. Only task text and the chosen guide reach the writing model. The judge sees the task, criteria, published quotations, and anonymous outputs; it does not see guide identities or reference answers.
 

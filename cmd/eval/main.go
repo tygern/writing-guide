@@ -19,9 +19,12 @@ func main() {
 }
 func run() error {
 	if len(os.Args) < 2 {
-		return fmt.Errorf("usage: eval plan|generate|judge|recheck|report [options]")
+		return fmt.Errorf("usage: eval plan|generate|judge|recheck|report|review|human-report [options]")
 	}
 	stage := os.Args[1]
+	if stage == "review" || stage == "human-report" {
+		return runHuman(stage, os.Args[2:])
+	}
 	flags := flag.NewFlagSet(stage, flag.ContinueOnError)
 	config := flags.String("config", "", "YAML configuration (required for plan or a new generation run)")
 	dir := flags.String("run", "", "run directory")

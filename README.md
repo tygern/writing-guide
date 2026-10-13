@@ -87,6 +87,26 @@ Resume by repeating a command with `--run`. Completed responses are retained. Re
 
 The report separates meaning, restraint, completion, criterion flags, clarity, voice, and order-sensitive judgments. It records tokens rather than estimating prices; failed network attempts may have usage unavailable to the harness. Calibrate model judgments against human reviews before using them to claim improved writing. API execution failures and missing results are reported separately.
 
+## Judge the writing yourself
+
+The terminal review workflow presents anonymous response pairs, saves preferences and issue notes, and resumes between sittings. It runs locally without an API key. Start with one comparison per case; the default sitting contains ten judgments.
+
+```sh
+# Prepare once, using directories from completed generation runs.
+go run ./cmd/eval review --init --reviewer Tyson \
+  --run evaluation/results/development \
+  --run evaluation/results/long-form \
+  --run evaluation/results/held-out
+
+# Review or resume the default session.
+go run ./cmd/eval review
+
+# Interpret preferences and prepare the next experiment.
+go run ./cmd/eval human-report
+```
+
+See [HUMAN_REVIEW.md](HUMAN_REVIEW.md) for controls, session options, issue tags, and the decision policy. Reports distinguish incomplete evidence, a preferred guide, and task-specific revision targets. The experiment brief includes development feedback and excludes held-out passages. The program does not change the guide automatically.
+
 ## Publish the Gist mirror
 
 The project began as [a Gist](https://gist.github.com/tygern/ac9b9ac0d2dcc6be040d3f2f72698ede). The repository is now the editing source. To replace the Gist's `guide.md` with the current guide, explicitly run:
